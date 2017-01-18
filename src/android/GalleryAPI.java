@@ -281,7 +281,7 @@ public class GalleryAPI extends CordovaPlugin {
     }
 
     private JSONObject getMediaBase64Data(JSONObject media) throws JSONException {
-        media.put("base64", ImgHelper.encodeBase64((String)media.getData()));
+        media.put("base64", encodeBase64((String)media.get("data")));
         return media;
     }
 
@@ -291,7 +291,7 @@ public class GalleryAPI extends CordovaPlugin {
         if (thumbnailPath.exists()) {
             System.out.println("Thumbnail Already Exists!!!. Not Creating New One");
             media.put("thumbnail", thumbnailPath);
-            media.put("thumbnailBase64", ImgHelper.encodeBase64(thumbnailPath.getAbsolutePath()));
+            media.put("thumbnailBase64", encodeBase64(thumbnailPath.getAbsolutePath()));
         } else {
             if (ops == null) {
                 ops = new BitmapFactory.Options();
@@ -359,7 +359,7 @@ public class GalleryAPI extends CordovaPlugin {
                             if (thumbnailPath.exists()) {
                                 System.out.println("Thumbnail didn't Exists!!!. Created New One");
                                 media.put("thumbnail", thumbnailPath);
-                                media.put("thumbnailBase64", ImgHelper.encodeBase64(thumbnailPath.getAbsolutePath()));
+                                media.put("thumbnailBase64", encodeBase64(thumbnailPath.getAbsolutePath()));
                                 media.put("error", "false");
                             }
                         } else
@@ -544,6 +544,23 @@ public class GalleryAPI extends CordovaPlugin {
         cursor.close();
 
         return buffer;
+    }
+
+    public String encodeBase64(String imgPath) {
+
+        Log.d(TAG, "转换Base64图片 :"+imgPath);
+        //decode to bitmap
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        //Log.d(TAG, "bitmap width: " + bitmap.getWidth() + " height: " + bitmap.getHeight());
+        //convert to byte array
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPG, 100, baos);
+        byte[] bytes = baos.toByteArray();
+
+        //base64 encode
+        byte[] encode = Base64.encode(bytes,Base64.DEFAULT);
+        return "data:image/jpeg;base64,"+new String(encode);
+
     }
 
     private class Object extends JSONObject {
