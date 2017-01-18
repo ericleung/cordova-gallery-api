@@ -139,7 +139,7 @@ public class GalleryAPI extends CordovaPlugin {
                 cordova.getThreadPool().execute(new Runnable() {
                     public void run() {
                         try {
-                            JSONObject media = getMediaBase64Data((String) args.get(0));
+                            JSONObject media = getMediaBase64Data((JSONObject) args.get(0));
                             callbackContext.success(media);
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -551,13 +551,13 @@ public class GalleryAPI extends CordovaPlugin {
 
     public String encodeBase64(String imgPath) {
 
-        Log.d(TAG, "转换Base64图片 :"+imgPath);
+        //Log.d(TAG, "转换Base64图片 :"+imgPath);
         //decode to bitmap
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        Bitmap bitmap = BitmapFactory.decodeFile(imgPath);
         //Log.d(TAG, "bitmap width: " + bitmap.getWidth() + " height: " + bitmap.getHeight());
         //convert to byte array
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPG, 100, baos);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] bytes = baos.toByteArray();
 
         //base64 encode
