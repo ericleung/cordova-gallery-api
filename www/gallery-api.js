@@ -55,4 +55,24 @@ GalleryAPI.prototype.getHQImageData = function(media, successCallback, errorCall
     );
 };
 
+GalleryAPI.prototype.getMediaBase64Data = function(media, successCallback, errorCallback) {
+    cordova.exec(
+        successCallback,
+        errorCallback,
+        'GalleryAPI',
+        'getMediaBase64Data',
+        [media]
+    );
+};
+
+GalleryAPI.prototype.getHQBase64Data = function(media, successCallback, errorCallback) {
+    cordova.exec(
+        successCallback,
+        errorCallback,
+        'GalleryAPI',
+        'getHQBase64Data',
+        [media]
+    );
+};
+
 module.exports = new GalleryAPI();

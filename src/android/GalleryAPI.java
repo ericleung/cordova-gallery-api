@@ -35,7 +35,9 @@ public class GalleryAPI extends CordovaPlugin {
     public static final String ACTION_CHECK_PERMISSION = "checkPermission";
     public static final String ACTION_GET_MEDIA = "getMedia";
     public static final String ACTION_GET_MEDIA_THUMBNAIL = "getMediaThumbnail";
+    public static final String ACTION_GET_MEDIA_BASE64 = "getMediaBase64Data";
     public static final String ACTION_GET_HQ_IMAGE_DATA = "getHQImageData";
+    public static final String ACTION_GET_HQ_BASE64_DATA  = "getHQBase64Data";
     public static final String ACTION_GET_ALBUMS = "getAlbums";
     public static final String DIR_NAME = ".mendr";
     public static final String SUB_DIR_NAME = ".mendr_hq";
@@ -87,12 +89,28 @@ public class GalleryAPI extends CordovaPlugin {
                     }
                 });
                 return true;
+
             } else if (ACTION_GET_HQ_IMAGE_DATA.equals(action)) {
                 cordova.getThreadPool().execute(new Runnable() {
                     public void run() {
                         try {
                             File imagePath = getHQImageData((JSONObject) args.get(0));
                             callbackContext.success(imagePath.toString());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            callbackContext.error(e.getMessage());
+                        }
+                    }
+                });
+                return true;
+
+            } else if (ACTION_GET_HQ_BASE64_DATA.equals(action)) {
+                cordova.getThreadPool().execute(new Runnable() {
+                    public void run() {
+                        try {
+                            File imagePath = getHQImageData((JSONObject) args.get(0));
+                            String base64Data = ImgHelper.encodeBase64(imagePath.toString());
+                            callbackContext.success(base64Data);
                         } catch (Exception e) {
                             e.printStackTrace();
                             callbackContext.error(e.getMessage());
@@ -114,7 +132,20 @@ public class GalleryAPI extends CordovaPlugin {
                 });
 
                 return true;
-            }
+            } else if (ACTION_GET_MEDIA_BASE64.equals(action)) {
+                cordova.getThreadPool().execute(new Runnable() {
+                    public void run() {
+                        try {
+                            JSONObject media = getMediaBase64Data((String) args.get(0));
+                            callbackContext.success(media);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            callbackContext.error(e.getMessage());
+                        }
+                    }
+                });
+                return true;
+            };
             callbackContext.error("Invalid action");
             return false;
         } catch (Exception e) {
@@ -249,12 +280,18 @@ public class GalleryAPI extends CordovaPlugin {
         }
     }
 
+    private JSONObject getMediaBase64Data(JSONObject media) throws JSONException {
+        media.put("base64", ImgHelper.encodeBase64((String)media.getData()));
+        return media;
+    }
+
     private JSONObject getMediaThumbnail(JSONObject media) throws JSONException {
 
         File thumbnailPath = thumbnailPathFromMediaId(media.getString("id"));
         if (thumbnailPath.exists()) {
             System.out.println("Thumbnail Already Exists!!!. Not Creating New One");
             media.put("thumbnail", thumbnailPath);
+            media.put("thumbnailBase64", ImgHelper.encodeBase64(thumbnailPath.getAbsolutePath()));
         } else {
             if (ops == null) {
                 ops = new BitmapFactory.Options();
@@ -322,6 +359,7 @@ public class GalleryAPI extends CordovaPlugin {
                             if (thumbnailPath.exists()) {
                                 System.out.println("Thumbnail didn't Exists!!!. Created New One");
                                 media.put("thumbnail", thumbnailPath);
+                                media.put("thumbnailBase64", ImgHelper.encodeBase64(thumbnailPath.getAbsolutePath()));
                                 media.put("error", "false");
                             }
                         } else
