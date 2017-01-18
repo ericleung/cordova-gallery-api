@@ -16,6 +16,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 
 import org.apache.cordova.*;
 import org.json.JSONArray;
@@ -109,7 +112,7 @@ public class GalleryAPI extends CordovaPlugin {
                     public void run() {
                         try {
                             File imagePath = getHQImageData((JSONObject) args.get(0));
-                            String base64Data = ImgHelper.encodeBase64(imagePath.toString());
+                            String base64Data = encodeBase64(imagePath.toString());
                             callbackContext.success(base64Data);
                         } catch (Exception e) {
                             e.printStackTrace();
